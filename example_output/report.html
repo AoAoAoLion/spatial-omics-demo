@@ -1,0 +1,65 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<title>Spatial transcriptomics report</title>
+<style>
+body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:980px;margin:40px auto;padding:0 20px;color:#1b2430;line-height:1.6}
+h1{border-bottom:3px solid #2ec4b6;padding-bottom:10px}
+h2{margin-top:34px;border-bottom:1px solid #e3e8ef;padding-bottom:6px}
+table{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+th,td{border:1px solid #e3e8ef;padding:7px 9px;text-align:left}
+th{background:#f6f8fb}
+img{max-width:100%;border:1px solid #e3e8ef;border-radius:6px;margin:8px 0}
+code{background:#f2f4f7;padding:2px 5px;border-radius:3px;font-size:13px}
+.meta{color:#5b6b7c;font-size:14px}
+</style></head><body>
+<h1>Spatial transcriptomics report — 10x Visium</h1>
+<p class="meta">Sample: V1_Mouse_Brain_Sagittal_Anterior (public 10x dataset) &middot; 2693 spots after QC &middot;
+19112 genes &middot; 12 spatial domains &middot; scanpy 1.12.4 + squidpy 1.8.3
+&middot; 2026-10-18 23:55</p>
+
+<h2>1. Spots and QC</h2>
+<table><tr><th>Step</th><th>Spots</th></tr>
+<tr><td>Loaded</td><td>2695</td></tr>
+<tr><td>After filter (≥500 UMIs, ≥200 genes)</td><td>2693</td></tr>
+</table>
+<img src="figures/01_spot_qc.png" alt="spot QC">
+<p>Spots below the count and gene thresholds are removed before normalisation. On a Visium
+section this mostly drops tissue-edge spots and off-tissue captures, not biology.</p>
+
+<h2>2. Spatial domains</h2>
+<img src="figures/02_spatial_clusters.png" alt="spatial clusters">
+<img src="figures/03_umap_clusters.png" alt="UMAP">
+<p>Clustering uses expression only; the left panel puts the same labels back on the section.
+Domains that look contiguous on tissue but overlap on the UMAP (or the reverse) are the
+interesting cases — that difference is the reason to run both views.</p>
+
+<h2>3. Spatially variable genes (Moran's I)</h2>
+<img src="figures/04_spatially_variable_genes.png" alt="SVGs">
+<table><tr><th>Gene</th><th>Moran's I</th><th>p-value</th></tr>
+<tr><td>S100a5</td><td>0.872</td><td>0.00e+00</td></tr><tr><td>Mbp</td><td>0.862</td><td>0.00e+00</td></tr><tr><td>Ttr</td><td>0.854</td><td>0.00e+00</td></tr><tr><td>Gpr88</td><td>0.854</td><td>0.00e+00</td></tr>
+</table>
+<p>Moran's I computed on the 2000 highly variable genes with a spatial neighbour graph
+(100 permutations). High I means expression is spatially structured rather than
+randomly scattered. Full table in <code>results/tables/moranI.csv</code>.</p>
+
+<h2>4. Neighbourhood enrichment</h2>
+<img src="figures/05_neighbourhood_enrichment.png" alt="neighbourhood enrichment">
+<p>z-scores of domain-domain adjacency: positive means those domains sit next to each other more
+often than expected under label permutation. This is a property of the section, not of the
+clustering quality, so it is reported as an observation.</p>
+
+<h2>5. Methods paragraph</h2>
+<p>Visium spots with fewer than 500 UMIs or 200 detected genes were
+excluded. Counts were library-size normalised and log-transformed, 2000 highly variable
+genes were selected, and PCA (30 components) was followed by Leiden clustering
+(resolution 0.5) on a k-nearest-neighbour graph. Spatial structure was quantified
+with Moran's I on the highly variable genes (100 permutations), and domain adjacency
+was tested with neighbourhood enrichment on the Visium hex grid.</p>
+
+<h2>6. Files</h2>
+<ul>
+<li><code>results/tables/moranI.csv</code> — Moran's I for all highly variable genes</li>
+<li><code>results/tables/neighbourhood_zscore.csv</code> — domain adjacency z-scores</li>
+<li><code>results/adata_spatial.h5ad</code> — processed object with spatial coordinates</li>
+<li><code>results/figures/</code> — spot QC, spatial domains, SVGs, enrichment</li>
+</ul>
+</body></html>
